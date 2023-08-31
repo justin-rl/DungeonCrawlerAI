@@ -55,7 +55,9 @@ class Jaskier:
         )
 
     def rect_to_position(self, rect: Rect):
-        if rect.width == 1 and rect.height:
+        if (rect.width == 1 and rect.height == 1) or (
+            rect.width == 0 and rect.height == 0
+        ):
             return rect.left, rect.top
         else:
             None

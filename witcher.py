@@ -12,7 +12,7 @@ class Geralt:
         self._player = player
         self._maze = maze
         self.jaskier = Jaskier(maze)
-        self.maze_info = self.jaskier.maze_info()
+        self.maze_info = None
 
     def action(self):
         if self.maze_info is None:
@@ -35,11 +35,15 @@ class Geralt:
             "walls": list(
                 filter(
                     lambda x: x is not None,
-                    map(self.jaskier.rect_to_position, map(self.jaskier.rect_to_tile, w)),
+                    map(
+                        self.jaskier.rect_to_position, map(self.jaskier.rect_to_tile, w)
+                    ),
                 )
             ),
             "obstacles": list(map(self.jaskier.rect_to_tile, o)),
             "items": list(map(self.jaskier.rect_to_tile, i)),
             "monsters": list(map(self.jaskier.rect_to_tile, m)),
             "doors": list(map(self.jaskier.rect_to_tile, d)),
+            "start": None, 
+            "end": None
         }

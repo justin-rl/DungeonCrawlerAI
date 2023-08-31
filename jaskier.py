@@ -31,15 +31,15 @@ class Jaskier:
                     map(self.rect_to_tile, self.maze.obstacleList),
                 )
             ),
-            "monsters": list(
-                map(
-                    self.rect_to_position,
-                    map(self.rect_to_tile, self.maze.monsterList),
-                )
-            ),
-            "doors": list(
-                map(self.rect_to_position, map(self.rect_to_tile, self.maze.doorList))
-            ),
+            # "monsters": list(
+            #     map(
+            #         self.rect_to_position,
+            #         map(self.rect_to_tile, self.maze.monsterList),
+            #     )
+            # ),
+            # "doors": list(
+            #     map(self.rect_to_position, map(self.rect_to_tile, self.maze.doorList))
+            # ),
         }
 
     def position_to_tile(self, position):

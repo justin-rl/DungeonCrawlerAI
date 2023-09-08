@@ -4,19 +4,18 @@ from geralt.input import Input
 
 class Geralt:
     def __init__(self, game_app) -> None:
+        self.frame = 0
         self.input = Input(game_app)
-        self.walls = None
-        self.exit = None
-        self.maze_matrix = None
+        self.maze_info = None
 
     def action(self):
-        if self.walls is None:
-            self.walls = self.input.maze_walls()
-        if self.exit is None:
-            self.exit = self.input.maze_exit()
-        if self.maze_matrix is None:
-            self.maze_matrix = self.input.generate_maze_matrix()
+        if self.maze_info is None:
+            self.maze_info = self.input.maze_info()
+
+        if self.frame % 50 == 0:
+            self.input.print_maze()
 
         x, y = self.input.player_position()
 
+        self.frame += 1
         return Action.DOWN | Action.RIGHT

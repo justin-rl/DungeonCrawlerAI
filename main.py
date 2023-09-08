@@ -9,5 +9,4 @@ from geralt.geralt import Geralt
 if __name__ == "__main__":
     game_app = App("assets/Mazes/mazeMedium_3")
     geralt = Geralt(game_app)
-    # game_app.on_execute(ai_action_callback=geralt.action)
-    game_app.on_execute()
+    game_app.on_execute(ai_action_callback=geralt.action)

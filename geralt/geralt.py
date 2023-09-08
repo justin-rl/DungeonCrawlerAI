@@ -1,5 +1,6 @@
 from Games2D import Action
 from geralt.input import Input
+from geralt import geralt_debug as dbg
 
 
 class Geralt:
@@ -12,10 +13,10 @@ class Geralt:
         if self.maze_info is None:
             self.maze_info = self.input.maze_info()
 
-        if self.frame % 50 == 0:
-            self.input.print_maze()
-
         x, y = self.input.player_position()
+
+        if self.frame % 50 == 0:
+            dbg.print_maze(self.maze_info["maze"], player_position=(x, y))
 
         self.frame += 1
         return Action.DOWN | Action.RIGHT

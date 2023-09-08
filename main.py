@@ -3,7 +3,7 @@
 # Author : Audrey Corbeil Therrien
 
 from Games2D import *
-from vesemir import Vesemir
+from geralt.vesemir import Vesemir
 from geralt.geralt import Geralt
 
 if __name__ == "__main__":

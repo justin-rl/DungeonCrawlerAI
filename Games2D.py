@@ -8,10 +8,10 @@ from Constants import *
 
 
 class Action(IntEnum):
-    RIGHT = 1 << 0
-    LEFT = 1 << 1
-    DOWN = 1 << 2
-    UP = 1 << 3
+    Right = 1 << 0
+    Left = 1 << 1
+    Down = 1 << 2
+    Up = 1 << 3
 
 
 class App:
@@ -93,13 +93,13 @@ class App:
 
     # FONCTION À Ajuster selon votre format d'instruction
     def on_AI_input(self, instruction):
-        if instruction & Action.RIGHT:
+        if instruction & Action.Right:
             self.move_player_right()
-        if instruction & Action.LEFT:
+        if instruction & Action.Left:
             self.move_player_left()
-        if instruction & Action.UP:
+        if instruction & Action.Up:
             self.move_player_up()
-        if instruction & Action.DOWN:
+        if instruction & Action.Down:
             self.move_player_down()
 
     def on_collision(self):

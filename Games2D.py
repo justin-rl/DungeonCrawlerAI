@@ -1,6 +1,7 @@
 from enum import IntEnum
 from pygame.locals import *
 import pygame
+from swiplserver import PrologMQI
 
 from Player import *
 from Maze import *
@@ -79,7 +80,13 @@ class App:
             # you need to win all four rounds to beat it
 
         if keys[K_SPACE]:
-            print(self.maze.look_at_door(self.player, self._display_surf))
+            state = self.maze.look_at_door(self.player, self._display_surf)
+            with PrologMQI() as mqi_file:
+                with mqi_file.create_thread() as prolog_thread:
+                    prolog_thread.query("[door]")
+                    messy_key = prolog_thread.query(f"keysPossible({state[0]}, Res)")
+            key = messy_key[0]['Res'][0]
+            self.maze.unlock_door(key)
             # returns the state of the doors you can currently see
             # you need to unlock it by providing the correct key
 

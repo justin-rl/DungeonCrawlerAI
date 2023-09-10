@@ -31,6 +31,7 @@ class App:
         self.timer = 0.0
         self.player = Player()
         self.maze = Maze(mazefile)
+        self._ai_activated = True
 
     def on_init(self):
         pygame.init()
@@ -90,6 +91,11 @@ class App:
 
         if keys[K_ESCAPE]:
             self._running = False
+        
+        if keys[K_f]:
+            self._ai_activated = False
+        if keys[K_j]:
+            self._ai_activated = True
 
     # FONCTION À Ajuster selon votre format d'instruction
     def on_AI_input(self, instruction):
@@ -218,7 +224,7 @@ class App:
             pygame.event.pump()
             keys = pygame.key.get_pressed()
             self.on_keyboard_input(keys)
-            if ai_action_callback is not None:
+            if ai_action_callback is not None and self._ai_activated:
                 self.on_AI_input(ai_action_callback())
             if self.on_coin_collision():
                 self.score += 1

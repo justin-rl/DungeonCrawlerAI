@@ -41,8 +41,8 @@ class Input:
         walls = self._round_positions_from_rects(self._game_app.maze.wallList)
         walls.remove(start)
 
-        coins = self._round_positions_from_rects(self._game_app.maze.coinList)
-        obstacles = self._round_positions_from_rects(self._game_app.maze.obstacleList)
+        coins = self._floor_positions_from_rects(self._game_app.maze.coinList)
+        obstacles = self._floor_positions_from_rects(self._game_app.maze.obstacleList)
         treasures = self._round_positions_from_rects(self._game_app.maze.treasureList)
 
         maze = np.full(
@@ -64,16 +64,11 @@ class Input:
     def _round_positions_from_rects(self, rects):
         return list(map(lambda p: (round(p[0]), round(p[1])), map(lambda p: self._tile_from_px(*p), map(Input._position_from_rect, rects))))
 
-    def _tile_from_px(self, x, y):
-        return x / self._game_app.maze.tile_size_x, y / self._game_app.maze.tile_size_y
+    def _floor_positions_from_rects(self, rects):
+        return list(map(lambda p: (math.floor(p[0]), math.floor(p[1])), map(lambda p: self._tile_from_px(*p), map(Input._position_from_rect, rects))))
 
-    def _rect_tile_from_rect_px(self, rect: Rect):
-        return Rect(
-            round(rect.left / self._game_app.maze.tile_size_x),
-            round(rect.top / self._game_app.maze.tile_size_y),
-            round(rect.width / self._game_app.maze.tile_size_x),
-            round(rect.height / self._game_app.maze.tile_size_y),
-        )
+    def _tile_from_px(self, x, y):
+        return x / self._game_app.maze.tile_size_x, y / self._game_app.maze.tile_size_y 
 
     def _position_from_rect(rect: Rect):
-        return (rect.left, rect.top) 
+        return (rect.left, rect.top)

@@ -14,9 +14,9 @@ class Geralt:
         self.input = Input(game_app)
         self._fuzz_controller = create_fuzzy_controller()
         self._prev_action = 0
-        # for var in self._fuzz_controller.ctrl.fuzzy_variables:
-        #     var.view()
-        # plt.show()
+        for var in self._fuzz_controller.ctrl.fuzzy_variables:
+            var.view()
+        plt.show()
 
     def action(self):
         self.frame += 1
@@ -100,18 +100,15 @@ class Geralt:
             player_input = 0
         if player_input > 1:
             player_input = 1
-        # prioritize missing the obstacle
-        if obstacle_input > 0.0:
-            item_input = -1
 
         self._fuzz_controller.input["player"] = player_input
-        # self._fuzz_controller.input["item"] = item_input
-        # self._fuzz_controller.input["obstacle"] = obstacle_input
+        self._fuzz_controller.input["item"] = item_input
+        self._fuzz_controller.input["obstacle"] = obstacle_input
         self._fuzz_controller.compute()
         out = self._fuzz_controller.output["output"] 
 
         action = direction_action
-        if out < 0.45:
+        if out < 0.4:
             action |= left
         elif out > 0.55:
             action |= right

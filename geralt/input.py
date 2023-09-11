@@ -33,7 +33,8 @@ class Input:
         _walls, obstacles, items, _monsters, _doors = self._game_app.maze.make_perception_list(self._game_app.player, self._game_app._display_surf)
         items = list(map(lambda p: self._tile_from_px(*p), map(Input._position_from_rect, items)))
         obstacles = list(map(lambda p: self._tile_from_px(*p), map(Input._position_from_rect, obstacles)))
-        return items, obstacles
+        monsters = _monsters
+        return items, obstacles, monsters
 
     def maze_info(self):
         start = self._tile_from_px(*self._game_app.maze.start)

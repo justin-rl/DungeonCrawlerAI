@@ -2,6 +2,7 @@ import math
 
 from matplotlib import pyplot as plt
 from Games2D import Action
+from geralt.genetic import Population, BabyPlayer
 from geralt.input import Input
 from geralt import geralt_debug as dbg
 from geralt.path_finding import a_star
@@ -72,7 +73,14 @@ class Geralt:
         if self.frame % 50 == 0:
             dbg.print_maze(self.maze_info["maze"], self.player_tile_position, self.path_objectives)
 
-        items, obstacles = self.input.player_perspective()
+        items, obstacles, monsters = self.input.player_perspective()
+
+        if len(monsters) > 0:
+            m = monsters[0]
+            population = Population(lambda x: m.mock_fight(x)[1])
+            elite = population.artificial_selection(plot=True)
+            print(m.mock_fight(BabyPlayer(elite)))
+            bk = True
 
         player_input = 0
         item_input = -1

@@ -11,7 +11,7 @@ class Player:
         self.speed = 3      # À modifier si votre joueur va "trop vite"
         self.size_x = 0
         self.size_y = 0
-        self.attributes = [random.randrange(-MAX_ATTRIBUTE, MAX_ATTRIBUTE) for i in range(NUM_ATTRIBUTES)]
+        self.attributes = [random.randrange(-MAX_ATTRIBUTE, MAX_ATTRIBUTE) for _ in range(NUM_ATTRIBUTES)]
 
     def get_position(self):
         return self.x, self.y

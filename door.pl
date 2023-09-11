@@ -3,70 +3,15 @@ keysPossible(Input, Res) :- findall(Key, key(Input, Key), Res).
 key(Input, first) :- first(Input).
 key(Input, second) :- second(Input).
 key(Input, third) :- third(Input).
-key(Input, fourth) :- fourth(Input).
-key(Input, sixth) :- sixth(Input).
 
-first(Input) :-
-   (member(gold, Input),
-    member(red, Input),
-    member(blue, Input),
-    member(yellow, Input),
-    \+ member(white, Input));
+list_length([], 0).
+list_length([_|Tail], N) :- list_length(Tail, N1), N is N1 + 1.
 
-   (member(silver, Input),
-    member(red, Input),
-    member(blue, Input),
-    \+ member(yellow, Input));
+count_item(_, [], 0).
+count_item(X, [X | T], N) :- !, count(X, T, N1), N is N1 + 1.
+count_item(X, [_ | T], N) :- count(X, T, N).
 
-   (member(silver, Input),
-    member(yellow, Input),
-    member(red, Input),
-    member(blue, Input),
-    member(black, Input));
+second(Input) :- length(Input, 4), \+ member(red, Input).
+third(Input) :- member(red, Input), last(Input, white).
+first(Input) :- length(Input, 4), member(red, Input), \+ last(Input, white), count_item(blue, Input, N), N = 1.
 
-   (member(bronze, Input),
-    member(red, Input),
-    member(blue, Input),
-    member(yellow, Input),
-    member(black, Input)).
-
-second(Input) :-
-    (member(gold, Input),
-     member(blue, Input),
-     member(yellow, Input),
-     \+ member(red, Input));
-
-    (member(silver, Input),
-     member(red, Input),
-     member(blue, Input),
-     member(yellow, Input),
-     \+ member(black, Input));
-
-    (member(bronze, Input),
-     member(red, Input),
-     member(blue, Input),
-     member(yellow, Input),
-     \+ member(black, Input)).
-
-third(Input) :-
-     member(bronze, Input),
-     member(red, Input),
-     member(blue, Input),
-     member(black, Input),
-     member(white, Input).
-
-fourth(Input) :-
-    member(gold, Input),
-    member(red, Input),
-    member(white, Input),
-    member(blue, Input),
-    member(yellow, Input),
-    member(black, Input).
-
-sixth(Input) :-
-    member(bronze, Input),
-    member(yellow, Input),
-    member(white, Input),
-    member(blue, Input),
-    member(black, Input),
-    member(white, Input).

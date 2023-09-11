@@ -10,7 +10,7 @@ from skfuzzy.control import (
 
 
 def create_fuzzy_controller():
-    player = Antecedent(np.linspace(0.0, 1.0, 1000), "player")
+    player = Antecedent(np.linspace(0.2, 0.8, 1000), "player")
     item = Antecedent(np.linspace(-1.0, 1.0, 2000), "item")
     obstacle = Antecedent(np.linspace(-1.0, 1.0, 2000), "obstacle")
     output = Consequent(np.linspace(0.0, 1.0, 1000), "output")
@@ -43,14 +43,29 @@ def create_fuzzy_controller():
         ControlSystem(
             rules=[
                 # Go around obstacle
-                Rule(antecedent=((obstacle["right"] | obstacle["center"])), consequent=output["left"]),
+                Rule(
+                    antecedent=((obstacle["right"] | obstacle["center"])),
+                    consequent=output["left"],
+                ),
                 Rule(antecedent=(obstacle["left"]), consequent=output["right"]),
                 # Fetch Item (Straight) Put item without somewhat left and right
-                Rule(antecedent=(item["left"] & player["left"]), consequent=output["straight"]),
-                Rule(antecedent=(item["center"] & player["center"]), consequent=output["straight"]),
-                Rule(antecedent=(item["right"] & player["right"]), consequent=output["straight"]),
+                Rule(
+                    antecedent=(item["left"] & player["left"]),
+                    consequent=output["straight"],
+                ),
+                Rule(
+                    antecedent=(item["center"] & player["center"]),
+                    consequent=output["straight"],
+                ),
+                Rule(
+                    antecedent=(item["right"] & player["right"]),
+                    consequent=output["straight"],
+                ),
                 # Fetch Item (Left)
-                Rule(antecedent=((item["center"] | item["left"])), consequent=output["left"]),
+                Rule(
+                    antecedent=((item["center"] | item["left"])),
+                    consequent=output["left"],
+                ),
                 # Fetch Item (Right)
                 Rule(antecedent=(item["right"]), consequent=output["right"]),
                 # Keep Center

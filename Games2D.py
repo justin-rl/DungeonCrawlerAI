@@ -106,14 +106,15 @@ class App:
 
     # FONCTION À Ajuster selon votre format d'instruction
     def on_AI_input(self, instruction):
-        if instruction & Action.Right:
-            self.move_player_right()
-        if instruction & Action.Left:
-            self.move_player_left()
-        if instruction & Action.Up:
-            self.move_player_up()
-        if instruction & Action.Down:
-            self.move_player_down()
+        if self._ai_activated:
+            if instruction & Action.Right:
+                self.move_player_right()
+            if instruction & Action.Left:
+                self.move_player_left()
+            if instruction & Action.Up:
+                self.move_player_up()
+            if instruction & Action.Down:
+                self.move_player_down()
 
     def on_collision(self):
         return (
@@ -231,7 +232,7 @@ class App:
             pygame.event.pump()
             keys = pygame.key.get_pressed()
             self.on_keyboard_input(keys)
-            if ai_action_callback is not None and self._ai_activated:
+            if ai_action_callback is not None:
                 self.on_AI_input(ai_action_callback())
             if self.on_coin_collision():
                 self.score += 1

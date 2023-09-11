@@ -2,6 +2,7 @@ from enum import IntEnum
 import math
 import numpy as np
 from pygame import Rect
+from Constants import PLAYER_SIZE
 
 from Games2D import App
 
@@ -23,7 +24,10 @@ class Input:
 
     def player_position(self):
         x, y = self._game_app.player.get_position()
-        return self._tile_from_px(x, y)
+        x, y = self._tile_from_px(x, y)
+        x += PLAYER_SIZE / 2
+        y += PLAYER_SIZE / 2
+        return x, y
     
     def player_perspective(self):
         _walls, obstacles, items, _monsters, _doors = self._game_app.maze.make_perception_list(self._game_app.player, self._game_app._display_surf)

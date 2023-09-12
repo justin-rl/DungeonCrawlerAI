@@ -1,4 +1,5 @@
 import math
+from swiplserver import PrologMQI
 
 from matplotlib import pyplot as plt
 from Games2D import Action, App
@@ -20,6 +21,7 @@ class Geralt:
     set_player_attributes = None
     get_player_attributes = None
     trained_for_monster = None
+    unlock_door = None
 
     def __init__(self, game_app: App) -> None:
         self.input = Input(game_app)
@@ -29,6 +31,7 @@ class Geralt:
         self._current_direction = None
         self._prev_action = 0
         self._cache = {}
+        self.unlock_door = game_app.maze.unlock_door
 
         self.update_player_position()
 
@@ -97,6 +100,16 @@ class Geralt:
             print(nb_win, score, self.get_player_attributes())
             if nb_win == 4:
                 self.trained_for_monster = m
+
+        if len(doors) > 0:
+            door = doors[0]
+            state = door.check_door()
+            with PrologMQI() as mqi_file:
+                with mqi_file.create_thread() as prolog_thread:
+                    prolog_thread.query("[door]")
+                    messy_key = prolog_thread.query(f"keysPossible({state}, Res)")
+            key = messy_key[0]['Res'][0]
+            self.unlock_door(key)
         
 
         player_input = 0

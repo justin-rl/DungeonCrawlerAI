@@ -1,7 +1,8 @@
 import math
 
 from matplotlib import pyplot as plt
-from Games2D import Action
+from Games2D import Action, App
+from geralt.traveling_witcher import optimal_path
 from geralt.genetic import Population, BabyPlayer
 from geralt.input import Input
 from geralt import geralt_debug as dbg
@@ -16,9 +17,14 @@ class Geralt:
     player_relative_position = None
     maze_info = None
     path_objectives = []
+    set_player_attributes = None
+    get_player_attributes = None
+    trained_for_monster = None
 
-    def __init__(self, game_app) -> None:
+    def __init__(self, game_app: App) -> None:
         self.input = Input(game_app)
+        self.set_player_attributes = game_app.player.set_attributes
+        self.get_player_attributes = game_app.player.get_attributes
         self._fuzz_controller = create_fuzzy_controller()
         self._current_direction = None
         self._prev_action = 0
@@ -61,6 +67,13 @@ class Geralt:
         self.update_player_position()
         self.maze_info = self.input.maze_info()
 
+        _a = optimal_path(
+            self.player_tile_position, 
+            self.maze_info["exit"], 
+            self.maze_info["coins"] + self.maze_info["treasures"],
+            self.maze_info["maze"]
+        )
+
         if len(self.path_objectives) == 0:
             self.path_objectives = self.generate_path_objectives(self.maze_info["exit"])
 
@@ -73,14 +86,18 @@ class Geralt:
         if self.frame % 50 == 0:
             dbg.print_maze(self.maze_info["maze"], self.player_tile_position, self.path_objectives)
 
-        items, obstacles, monsters = self.input.player_perspective()
+        items, obstacles, monsters, doors = self.input.player_perspective()
 
-        if len(monsters) > 0:
+        if len(monsters) > 0 and monsters[0] is not self.trained_for_monster:
             m = monsters[0]
             population = Population(lambda x: m.mock_fight(x)[1])
-            elite = population.artificial_selection(plot=True)
-            print(m.mock_fight(BabyPlayer(elite)))
-            bk = True
+            attributes = population.artificial_selection(plot=False)
+            nb_win, score = m.mock_fight(BabyPlayer(attributes))
+            self.set_player_attributes(attributes) 
+            print(nb_win, score, self.get_player_attributes())
+            if nb_win == 4:
+                self.trained_for_monster = m
+        
 
         player_input = 0
         item_input = -1

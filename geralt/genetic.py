@@ -5,10 +5,10 @@ import numpy as np
 from Constants import NUM_ATTRIBUTES, MAX_ATTRIBUTE
 
 
-POPULATION_SIZE = 1000
-MUTATION_RATE = 0.05
-ELITISM = 0.01
-NUM_GENERATION = 123
+POPULATION_SIZE = 1200
+MUTATION_RATE = 0.07
+ELITISM = 0.02
+NUM_GENERATION = 128
 
 
 class BabyPlayer:
@@ -41,7 +41,7 @@ class Population:
             mean_fitnesses[i] = np.mean(self.population_fitness)
 
             elites = self.find_elites(nb_elites)
-            bebes = self.reproduce(nb_bebe)
+            bebes = self.reproduce(nb_bebe, n_generation=i)
             self.population[:nb_elites][:] = elites
             self.population[nb_elites:][:] = bebes
 
@@ -63,13 +63,12 @@ class Population:
         elites = np.array(list(map(lambda i: self.population[i], elites[:nb_elite])))
         return elites
 
-    def reproduce(self, nb_bebe):
+    def reproduce(self, nb_bebe, n_generation):
         normalize_fit = (self.population_fitness - np.min(self.population_fitness)) / (
             np.max(self.population_fitness) - np.min(self.population_fitness)
         )
         percentage_fit = normalize_fit / np.sum(normalize_fit)
         next_gen = np.zeros((nb_bebe, NUM_ATTRIBUTES))
-        split = NUM_ATTRIBUTES // 2
         parents_indices = np.random.choice(
             POPULATION_SIZE, size=(nb_bebe, 2), p=percentage_fit
         )
@@ -77,8 +76,9 @@ class Population:
             papa = self.population[parents_idx[0]]
             maman = self.population[parents_idx[1]]
             bebe = maman
+            split = np.random.randint(low=1, high=NUM_ATTRIBUTES - 1)
             bebe[split:] = papa[split:]
-            next_gen[i][:] = Population._mutate_bebe(bebe, multiply_factor=5 if i < 100 else 1)
+            next_gen[i][:] = Population._mutate_bebe(bebe, multiply_factor=10 if n_generation < 50 else 1)
         return next_gen
 
     def _mutate_bebe(bebe, multiply_factor=1):

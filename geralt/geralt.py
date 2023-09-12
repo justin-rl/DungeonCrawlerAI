@@ -17,11 +17,12 @@ class Geralt:
     player_tile_position = None
     player_relative_position = None
     maze_info = None
+    traveling_path = None
     path_objectives = []
     set_player_attributes = None
     get_player_attributes = None
-    trained_for_monster = None
     unlock_door = None
+    trained_for_monster = None
 
     def __init__(self, game_app: App) -> None:
         self.input = Input(game_app)
@@ -70,15 +71,16 @@ class Geralt:
         self.update_player_position()
         self.maze_info = self.input.maze_info()
 
-        _a = optimal_path(
-            self.player_tile_position, 
-            self.maze_info["exit"], 
-            self.maze_info["coins"] + self.maze_info["treasures"],
-            self.maze_info["maze"]
-        )
+        if self.traveling_path is None:
+            self.traveling_path = optimal_path(
+                self.player_tile_position, 
+                self.maze_info["exit"], 
+                self.maze_info["treasures"] + self.maze_info["coins"],
+                self.maze_info["maze"]
+            )
 
         if len(self.path_objectives) == 0:
-            self.path_objectives = self.generate_path_objectives(self.maze_info["exit"])
+            self.path_objectives = self.generate_path_objectives(self.traveling_path.pop(0))
 
         direction_action = 0 
         if len(self.path_objectives) > 0:
@@ -93,13 +95,16 @@ class Geralt:
 
         if len(monsters) > 0 and monsters[0] is not self.trained_for_monster:
             m = monsters[0]
-            population = Population(lambda x: m.mock_fight(x)[1])
-            attributes = population.artificial_selection(plot=False)
-            nb_win, score = m.mock_fight(BabyPlayer(attributes))
+            good_enough = False
+            while not good_enough:
+                population = Population(lambda x: m.mock_fight(x)[1])
+                attributes = population.artificial_selection(plot=False)
+                nb_win, score = m.mock_fight(BabyPlayer(attributes))
+                print(nb_win, score, self.get_player_attributes())
+                if nb_win == 4:
+                    good_enough = True
             self.set_player_attributes(attributes) 
-            print(nb_win, score, self.get_player_attributes())
-            if nb_win == 4:
-                self.trained_for_monster = m
+            self.trained_for_monster = m
 
         if len(doors) > 0:
             door = doors[0]

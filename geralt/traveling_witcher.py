@@ -30,3 +30,11 @@ def optimal_path(start, end, objectives, maze):
     print(f"Total distance: {total_distance}")
 
     return optimal_path
+
+
+def closest_objective(player_position, objectives, maze):
+    closest = None
+    for i in objectives:
+        nearest_objective = min(objectives, key=lambda x: len(a_star(player_position, x , maze)))
+
+    return closest

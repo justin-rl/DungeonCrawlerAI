@@ -10,6 +10,6 @@ from geralt.vesemir import Vesemir
 from geralt.geralt import Geralt
 
 if __name__ == "__main__":
-    game_app = App("assets/Mazes/mazeMedium_noObstacle")
+    game_app = App("assets/Mazes/mazeMedium_2")
     geralt = Geralt(game_app)
     game_app.on_execute(ai_action_callback=geralt.action)

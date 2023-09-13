@@ -20,6 +20,7 @@ class Geralt:
     maze_info = None
     traveling_path = None
     path_objectives = []
+    objective = None
     set_player_attributes = None
     get_player_attributes = None
     unlock_door = None
@@ -34,6 +35,7 @@ class Geralt:
         self._prev_action = 0
         self._cache = {}
         self.unlock_door = game_app.maze.unlock_door
+        self.nb_objective = None
 
         self.update_player_position()
 
@@ -66,36 +68,50 @@ class Geralt:
         remove.reverse()
         for i in remove:
             del path[i]
-        return path
+        return path[1:]
 
     def action(self):
         self.update_player_position()
         self.maze_info = self.input.maze_info()
 
-        if self.traveling_path is None:
-            self.traveling_path = optimal_path(
-                self.player_tile_position, 
-                self.maze_info["exit"], 
-                self.maze_info["treasures"] + self.maze_info["coins"],
-                self.maze_info["maze"]
-            )
-
+        # if self.traveling_path is None:
+        #     self.traveling_path = optimal_path(
+        #         self.player_tile_position,
+        #         self.maze_info["exit"],
+        #         self.maze_info["treasures"] + self.maze_info["coins"],
+        #         self.maze_info["maze"]
+        #     )
+        objectives = self.maze_info["treasures"] + self.maze_info["coins"]
         if len(self.path_objectives) == 0:
-            self.path_objectives = self.generate_path_objectives(self.traveling_path.pop(0))
+            self.objective = min(
+                    objectives,
+                    key=lambda x: len(
+                        a_star(self.player_tile_position, x, self.maze_info["maze"])
+                    ),
+                ) if len(objectives) > 0 else self.maze_info["exit"]
+            self.nb_objective = len(objectives)  
+        self.path_objectives = self.generate_path_objectives(self.objective)
 
-        direction_action = 0 
+        direction_action = 0
         if len(self.path_objectives) > 0:
-            direction_action = Geralt._direction_to_tile(self.player_position, self.path_objectives[0]) 
-            if direction_action == 0:
+            direction_action = self._direction_to_tile(
+                self.player_position, self.path_objectives[0],
+                offset=True if len(self.path_objectives) == 1 else False
+            )
+            if (len(self.path_objectives) > 1 and direction_action == 0) or (len(self.path_objectives) == 1 and len(objectives) < self.nb_objective):
                 self.path_objectives.pop(0)
+        self._current_direction = direction_action
 
         if self.frame % 50 == 0:
-            dbg.print_maze(self.maze_info["maze"], self.player_tile_position, self.path_objectives)
+            dbg.print_maze(
+                self.maze_info["maze"], self.player_tile_position, self.path_objectives
+            )
 
         items, obstacles, monsters, doors = self.input.player_perspective()
 
         if len(monsters) > 0 and monsters[0] is not self.trained_for_monster:
             m = monsters[0]
+
             def fit_lambda(x):
                 win, score = m.mock_fight(x)
                 if win == 4:
@@ -103,14 +119,19 @@ class Geralt:
                 return win + score
 
             good_enough = False
-            while not good_enough: 
+            while not good_enough:
                 population = Population(fit_lambda)
                 attributes = population.artificial_selection(plot=False)
                 nb_win, score = m.mock_fight(BabyPlayer(attributes))
-                print(nb_win, score, self.get_player_attributes(), fit_lambda(BabyPlayer(attributes)))
+                print(
+                    nb_win,
+                    score,
+                    self.get_player_attributes(),
+                    fit_lambda(BabyPlayer(attributes)),
+                )
                 if nb_win == 4:
                     good_enough = True
-            self.set_player_attributes(attributes) 
+            self.set_player_attributes(attributes)
             self.trained_for_monster = m
 
         if len(doors) > 0:
@@ -120,9 +141,8 @@ class Geralt:
                 with mqi_file.create_thread() as prolog_thread:
                     prolog_thread.query("[door]")
                     messy_key = prolog_thread.query(f"keysPossible({state}, Res)")
-            key = messy_key[0]['Res'][0]
+            key = messy_key[0]["Res"][0]
             self.unlock_door(key)
-        
 
         player_input = 0
         item_input = -1
@@ -143,7 +163,7 @@ class Geralt:
             left = Action.Down
             right = Action.Up
         elif direction_action == Action.Right:
-            player_input = self.player_relative_position[1] 
+            player_input = self.player_relative_position[1]
             if len(items) > 0:
                 item_input = items[0][1]
                 item_input -= item_input // 1
@@ -153,7 +173,7 @@ class Geralt:
             left = Action.Up
             right = Action.Down
         elif direction_action == Action.Up:
-            player_input = self.player_relative_position[0] 
+            player_input = self.player_relative_position[0]
             if len(items) > 0:
                 item_input = items[0][0]
                 item_input -= item_input // 1
@@ -163,7 +183,7 @@ class Geralt:
             left = Action.Left
             right = Action.Right
         elif direction_action == Action.Down:
-            player_input = 1 - self.player_relative_position[0] 
+            player_input = 1 - self.player_relative_position[0]
             if len(items) > 0:
                 item_input = items[0][0]
                 item_input -= item_input // 1
@@ -189,9 +209,9 @@ class Geralt:
         # print(direction_action, player_input, item_input, obstacle_input, out)
 
         action = direction_action
-        if out < 0.45:
+        if out < 0.47:
             action |= left
-        elif out > 0.55:
+        elif out > 0.53:
             action |= right
 
         self._prev_action = action
@@ -206,9 +226,20 @@ class Geralt:
             self._cache[key] = val
             return val
 
-    def _direction_to_tile(player_position, tile):
-        xp, yp = player_position
+    def _direction_to_tile(self, player_position, tile, offset):
+
         xt, yt = tile
+        if offset:
+            if self._current_direction == Action.Down:
+                yt += 1
+            elif self._current_direction == Action.Up:
+                yt -= 1
+            elif self._current_direction == Action.Left:
+                xt -= 1
+            elif self._current_direction == Action.Right:
+                xt += 1
+
+        xp, yp = player_position
         dx = round(xt - xp + 0.5, 2)
         dy = round(yt - yp + 0.5, 2)
 
@@ -220,7 +251,7 @@ class Geralt:
 
         if dy > 0.3:
             return Action.Down
-        if dy < -0.3 :
+        if dy < -0.3:
             return Action.Up
 
         return 0

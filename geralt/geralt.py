@@ -105,7 +105,7 @@ class Geralt:
             good_enough = False
             while not good_enough: 
                 population = Population(fit_lambda)
-                attributes = population.artificial_selection(plot=True)
+                attributes = population.artificial_selection(plot=False)
                 nb_win, score = m.mock_fight(BabyPlayer(attributes))
                 print(nb_win, score, self.get_player_attributes(), fit_lambda(BabyPlayer(attributes)))
                 if nb_win == 4:

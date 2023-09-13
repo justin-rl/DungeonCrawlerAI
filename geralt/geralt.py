@@ -1,4 +1,5 @@
 import math
+import time
 from swiplserver import PrologMQI
 
 from matplotlib import pyplot as plt
@@ -95,12 +96,18 @@ class Geralt:
 
         if len(monsters) > 0 and monsters[0] is not self.trained_for_monster:
             m = monsters[0]
+            def fit_lambda(x):
+                win, score = m.mock_fight(x)
+                if win == 4:
+                    return 10
+                return win + score
+
             good_enough = False
-            while not good_enough:
-                population = Population(lambda x: m.mock_fight(x)[1])
-                attributes = population.artificial_selection(plot=False)
+            while not good_enough: 
+                population = Population(fit_lambda)
+                attributes = population.artificial_selection(plot=True)
                 nb_win, score = m.mock_fight(BabyPlayer(attributes))
-                print(nb_win, score, self.get_player_attributes())
+                print(nb_win, score, self.get_player_attributes(), fit_lambda(BabyPlayer(attributes)))
                 if nb_win == 4:
                     good_enough = True
             self.set_player_attributes(attributes) 

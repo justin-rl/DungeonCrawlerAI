@@ -1,14 +1,15 @@
 import math
+import time
 from matplotlib import pyplot as plt
 import numpy as np
 
 from Constants import NUM_ATTRIBUTES, MAX_ATTRIBUTE
 
 
-POPULATION_SIZE = 1200
-MUTATION_RATE = 0.07
-ELITISM = 0.02
-NUM_GENERATION = 128
+POPULATION_SIZE = 1000
+MUTATION_RATE = 0.08
+ELITISM = 0.03
+NUM_GENERATION = 80
 
 
 class BabyPlayer:
@@ -37,8 +38,12 @@ class Population:
 
         for i in range(0, NUM_GENERATION):
             self.evaluate_fitness()
-            max_fitnesses[i] = np.max(self.population_fitness)
+            max = np.max(self.population_fitness)
+            max_fitnesses[i] = max
             mean_fitnesses[i] = np.mean(self.population_fitness)
+
+            if max >= 10:
+                break
 
             elites = self.find_elites(nb_elites)
             bebes = self.reproduce(nb_bebe, n_generation=i)
@@ -76,9 +81,9 @@ class Population:
             papa = self.population[parents_idx[0]]
             maman = self.population[parents_idx[1]]
             bebe = maman
-            split = np.random.randint(low=1, high=NUM_ATTRIBUTES - 1)
+            split = np.random.randint(low=1, high=NUM_ATTRIBUTES - 1) 
             bebe[split:] = papa[split:]
-            next_gen[i][:] = Population._mutate_bebe(bebe, multiply_factor=10 if n_generation < 50 else 1)
+            next_gen[i][:] = Population._mutate_bebe(bebe, multiply_factor=10 if n_generation < 20 else 5 if n_generation < 40 else 1)
         return next_gen
 
     def _mutate_bebe(bebe, multiply_factor=1):
@@ -87,9 +92,12 @@ class Population:
             gene = int(bebe[idx])
             new_gene = None
             while new_gene is None:
-                bit = np.random.randint(low=0, high=10)
-                t_gene = gene ^ (1 << bit)
-                if -MAX_ATTRIBUTE <= t_gene <= MAX_ATTRIBUTE:
-                    new_gene = t_gene
+                bit = np.random.randint(low=0, high=11)
+                if bit == 11:
+                    new_gene *= -1
+                else:
+                    t_gene = gene ^ (1 << bit)
+                    if -MAX_ATTRIBUTE <= t_gene <= MAX_ATTRIBUTE:
+                        new_gene = t_gene
             bebe[idx] = new_gene
         return bebe

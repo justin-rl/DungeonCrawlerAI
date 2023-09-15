@@ -6,7 +6,6 @@ import time
 from matplotlib import pyplot as plt
 import numpy as np
 from Games2D import *
-from geralt.vesemir import Vesemir
 from geralt.geralt import Geralt
 
 if __name__ == "__main__":

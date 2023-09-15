@@ -4,7 +4,6 @@ from swiplserver import PrologMQI
 
 from matplotlib import pyplot as plt
 from Games2D import Action, App
-from geralt.traveling_witcher import optimal_path
 from geralt.genetic import Population, BabyPlayer
 from geralt.input import Input
 from geralt import geralt_debug as dbg
